@@ -1,0 +1,46 @@
+{
+  "name": "@lphal/deepseek-tool-search",
+  "version": "0.1.0",
+  "description": "DeepSeek Search and Fetch APIs exposed as MCP web_search and web_fetch tools",
+  "type": "module",
+  "bin": {
+    "deepseek-tool-search": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "README.zh.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "packageManager": "pnpm@10.23.0",
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "pnpm build && node --test test/*.test.mjs",
+    "start": "node dist/index.js",
+    "prepack": "pnpm build"
+  },
+  "keywords": [
+    "deepseek",
+    "mcp",
+    "model-context-protocol",
+    "web-search",
+    "web-fetch"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsdown": "^0.23.0",
+    "typescript": "6.0.3"
+  }
+}
