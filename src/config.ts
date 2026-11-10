@@ -1,5 +1,5 @@
 export const PACKAGE_NAME = '@lphal/deepseek-tool-search'
-export const PACKAGE_VERSION = '0.1.0'
+export const PACKAGE_VERSION = '0.2.2-rc.1'
 
 export const DEEPSEEK_DEFAULT_SEARCH_API_BASE_URL = 'https://api.deepseek.com/v1/tools'
 export const DEEPSEEK_DEFAULT_MESSAGES_BASE_URL = 'https://api.deepseek.com/anthropic/v1'

@@ -1,6 +1,6 @@
 {
   "name": "@lphal/deepseek-tool-search",
-  "version": "0.1.0",
+  "version": "0.2.2-rc.1",
   "description": "DeepSeek Search and Fetch APIs exposed as MCP web_search and web_fetch tools",
   "type": "module",
   "repository": {
