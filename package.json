@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "DeepSeek Search and Fetch APIs exposed as MCP web_search and web_fetch tools",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lphal/deepseek-tool-search.git"
+  },
   "bin": {
     "deepseek-tool-search": "./dist/index.js"
   },
