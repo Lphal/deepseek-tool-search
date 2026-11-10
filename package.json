@@ -12,6 +12,7 @@
   },
   "files": [
     "dist",
+    ".env.example",
     "README.md",
     "README.zh.md",
     "LICENSE"
@@ -24,6 +25,7 @@
     "build": "tsdown",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "pnpm build && node --test test/*.test.mjs",
+    "test:live": "pnpm build && node --test test/live-api.e2e.mjs",
     "start": "node dist/index.js",
     "prepack": "pnpm build"
   },

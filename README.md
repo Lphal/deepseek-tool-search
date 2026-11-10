@@ -1,16 +1,25 @@
 # @lphal/deepseek-tool-search
 
-An `npx`-friendly MCP server exposing DeepSeek-backed `web_search` and `web_fetch` tools.
+English | [中文](README.zh.md)
 
-The default path calls DeepSeek's dedicated Search and Fetch APIs without an auxiliary model response.
-An optional Messages-compatible search mode mirrors DeepSeek Harness's legacy
-`web_search_20250305` server-tool flow.
+An `npx`-friendly DeepSeek MCP server exposing `web_search` and `web_fetch` to any MCP client.
 
-## Quick Start
+The implementation follows DeepSeek Harness's web tool split:
+
+- The default path calls DeepSeek's dedicated Search API without an auxiliary model response.
+- `web_fetch` calls the DeepSeek Fetch API and returns page Markdown directly.
+- An optional Messages-compatible mode mirrors Harness's legacy `web_search_20250305` server-tool flow.
+- Multi-query results are merged by source rank, deduplicated by URL, and bounded by the total result limit.
+- The server includes local 5 QPS pacing, request timeouts, response validation, and credential-safe errors.
+- All web content is labeled as untrusted data so webpage text is not treated as instructions.
 
 Requires Node.js 20.19 or newer.
 
 The development toolchain is pinned to `pnpm@10.23.0` and `typescript@6.0.3`.
+
+## Installation
+
+After publishing to npm, an MCP client can use:
 
 ```json
 {
@@ -26,7 +35,7 @@ The development toolchain is pinned to `pnpm@10.23.0` and `typescript@6.0.3`.
 }
 ```
 
-This is a stdio MCP server. The MCP client starts it through `npx`; the DeepSeek REST URL is not used as an HTTP/SSE MCP endpoint.
+This is an MCP stdio configuration, not a DeepSeek REST URL for an HTTP/SSE endpoint. The MCP client starts the server through `npx`.
 
 After publishing, register it with Codex CLI:
 
@@ -36,7 +45,7 @@ codex mcp add deepseek-search \
   -- npx -y @lphal/deepseek-tool-search
 ```
 
-`codex mcp list` shows the configured server. The `--env` option writes the key into the Codex MCP configuration, so use your client's preferred secret-injection mechanism if local persistence is unsuitable.
+Use `codex mcp list` to inspect the configuration. `--env` writes the key into Codex's MCP configuration; use your client's preferred environment or secret-reference mechanism if local persistence is unsuitable.
 
 Local development:
 
@@ -44,26 +53,78 @@ Local development:
 pnpm install
 pnpm build
 pnpm start -- --check
-pnpm test
+pnpm start
+```
+
+`--check` prints sanitized configuration without making network requests.
+
+The working directory's `.env` is loaded automatically; `.env.example` documents the supported variables.
+
+## Tools
+
+### `web_search`
+
+```json
+{
+  "queries": ["DeepSeek API documentation", "DeepSeek web search API"],
+  "count": 10,
+  "original_question": "How do I connect the DeepSeek search API to MCP?"
+}
+```
+
+`count` is the total number of sources after merging, from 1 to 50. When omitted, `DEEPSEEK_SEARCH_COUNT` is used.
+
+### `web_fetch`
+
+```json
+{
+  "url": "https://api-docs.deepseek.com/guides/search"
+}
 ```
 
 ## Configuration
 
 | Variable | Default | Purpose |
 |---|---:|---|
-| `DEEPSEEK_API_KEY` | required | DeepSeek API key. |
-| `DEEPSEEK_SEARCH_MODE` | `api` | `api` for `/v1/tools/search`; `messages` for Anthropic-compatible server-tool search. |
-| `DEEPSEEK_SEARCH_API_BASE_URL` | `https://api.deepseek.com/v1/tools` | Search API base; `/search` is appended. |
-| `DEEPSEEK_FETCH_API_BASE_URL` | `https://api.deepseek.com/v1/tools` | Fetch API base; `/fetch` is appended. |
-| `DEEPSEEK_MESSAGES_BASE_URL` | `https://api.deepseek.com/anthropic/v1` | Messages base; `/messages` is appended. |
+| `DEEPSEEK_API_KEY` | required | DeepSeek API key from the process environment or `.env`. It is used only in server request headers and is not written to tool results or logs. |
+| `DEEPSEEK_SEARCH_MODE` | `api` | `api` uses the dedicated Search API; `messages` uses compatible Messages search. |
+| `DEEPSEEK_SEARCH_API_BASE_URL` | `https://api.deepseek.com/v1/tools` | Search API base URL; the program appends `/search`. |
+| `DEEPSEEK_FETCH_API_BASE_URL` | `https://api.deepseek.com/v1/tools` | Fetch API base URL; the program appends `/fetch`. |
+| `DEEPSEEK_MESSAGES_BASE_URL` | `https://api.deepseek.com/anthropic/v1` | Messages-compatible base URL; the program appends `/messages`. |
 | `DEEPSEEK_SEARCH_MODEL` | `deepseek-v4-flash` | Model used only by Messages mode. |
-| `DEEPSEEK_SEARCH_MAX_TOKENS` | `4096` | Messages output token cap. |
+| `DEEPSEEK_SEARCH_MAX_TOKENS` | `4096` | Maximum output tokens for Messages mode. |
 | `DEEPSEEK_SEARCH_MAX_USES` | `5` | Maximum server-tool searches in one Messages request. |
-| `DEEPSEEK_SEARCH_COUNT` | `10` | Default combined result count (1-50). |
-| `DEEPSEEK_MAX_QUERIES` | `10` | Maximum queries per `web_search` call (1-20). |
+| `DEEPSEEK_SEARCH_COUNT` | `10` | Default total number of returned sources, from 1 to 50. |
+| `DEEPSEEK_MAX_QUERIES` | `10` | Maximum queries per `web_search` call, from 1 to 20. |
 | `DEEPSEEK_SEARCH_REQUESTS_PER_SECOND` | `5` | Per-process Search request pacing. |
-| `DEEPSEEK_HTTP_TIMEOUT_MS` | `30000` | Request and pacing timeout. |
-| `DEEPSEEK_SEARCH_SUMMARY_MAX_CHARS` | `800` | Per-source summary cap. |
-| `DEEPSEEK_FETCH_MAX_OUTPUT_CHARS` | `200000` | Page Markdown output cap. |
+| `DEEPSEEK_HTTP_TIMEOUT_MS` | `30000` | Timeout for one network request and any pacing wait. |
+| `DEEPSEEK_SEARCH_SUMMARY_MAX_CHARS` | `800` | Character limit for each source summary. |
+| `DEEPSEEK_FETCH_MAX_OUTPUT_CHARS` | `200000` | Output limit for one fetched page. |
 
-See [README.zh.md](README.zh.md) for Chinese documentation.
+Custom proxy URLs must use `http(s)` and must not embed credentials. The API key must be a raw ASCII string without quotes, spaces, or newlines.
+
+## Harness Mapping
+
+| Harness | This project |
+|---|---|
+| `web_search` | MCP `web_search` |
+| `web_fetch` | MCP `web_fetch` |
+| `web-deepseek-api.searchBaseURL` | `DEEPSEEK_SEARCH_API_BASE_URL` |
+| `web-deepseek-api.fetchBaseURL` | `DEEPSEEK_FETCH_API_BASE_URL` |
+| `web-search-deepseek.baseURL` | `DEEPSEEK_MESSAGES_BASE_URL` |
+| `web-search-deepseek.model` | `DEEPSEEK_SEARCH_MODEL` |
+| `web-search-deepseek.maxUses` | `DEEPSEEK_SEARCH_MAX_USES` |
+
+Messages-compatible mode incurs the latency and token cost of a full model call for every search, making it slower and more expensive than the dedicated Search API. Use it only when a custom gateway does not provide `/v1/tools/search`.
+
+## Development
+
+```bash
+pnpm install
+pnpm typecheck
+pnpm test
+pnpm test:live
+pnpm pack
+```
+
+`pnpm test` uses local mocks. `pnpm test:live` calls the real DeepSeek Search and Fetch APIs and skips when `DEEPSEEK_API_KEY` is absent.

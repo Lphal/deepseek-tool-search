@@ -1,5 +1,7 @@
 # @lphal/deepseek-tool-search
 
+[English](README.md) | 中文
+
 通过 `npx` 启动的 DeepSeek MCP 工具，向任意 MCP 客户端提供 `web_search` 与 `web_fetch`。
 
 实现参考 DeepSeek Harness 的 web 工具拆分：
@@ -56,6 +58,8 @@ pnpm start
 
 `--check` 只显示脱敏后的配置，不发起网络请求。
 
+工作目录中的 `.env` 会被自动加载；`.env.example` 列出了支持的变量。
+
 ## 工具
 
 ### `web_search`
@@ -82,7 +86,7 @@ pnpm start
 
 | 环境变量 | 默认值 | 说明 |
 |---|---:|---|
-| `DEEPSEEK_API_KEY` | 无 | 必填。只在服务端请求头中使用，不写入工具结果或日志。 |
+| `DEEPSEEK_API_KEY` | 无 | 必填。可从进程环境或 `.env` 提供。只在服务端请求头中使用，不写入工具结果或日志。 |
 | `DEEPSEEK_SEARCH_MODE` | `api` | `api` 使用新版 Search API；`messages` 使用兼容 Messages 搜索。 |
 | `DEEPSEEK_SEARCH_API_BASE_URL` | `https://api.deepseek.com/v1/tools` | Search API 基础地址，程序追加 `/search`。 |
 | `DEEPSEEK_FETCH_API_BASE_URL` | `https://api.deepseek.com/v1/tools` | Fetch API 基础地址，程序追加 `/fetch`。 |
@@ -119,7 +123,8 @@ Messages 兼容模式每次搜索都会产生一次完整模型调用的延迟�
 pnpm install
 pnpm typecheck
 pnpm test
+pnpm test:live
 pnpm pack
 ```
 
-测试使用本地模拟 DeepSeek 服务，覆盖 Search、Fetch、Messages 解析和真实 MCP stdio 往返。
+`pnpm test` 使用本地模拟服务；`pnpm test:live` 调用真实 DeepSeek Search 与 Fetch API，未配置 `DEEPSEEK_API_KEY` 时自动跳过。

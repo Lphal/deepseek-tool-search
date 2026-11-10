@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
 import { loadConfig, PACKAGE_NAME, PACKAGE_VERSION, publicConfig } from './config.js'
+import { loadLocalEnv } from './env.js'
 import { runStdioServer } from './server.js'
+
+loadLocalEnv()
 
 const args = process.argv.slice(2)
 
@@ -34,7 +37,7 @@ Usage:
   npx -y ${PACKAGE_NAME} --check
 
 The default mode starts an MCP stdio server exposing web_search and web_fetch.
-Set DEEPSEEK_API_KEY in the MCP server environment.
+Set DEEPSEEK_API_KEY in the MCP server environment or the working directory's .env file.
 
 Options:
   -h, --help       Show this help.

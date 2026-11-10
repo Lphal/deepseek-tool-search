@@ -4,6 +4,7 @@ export default defineConfig({
   entry: {
     index: 'src/index.ts',
     config: 'src/config.ts',
+    env: 'src/env.ts',
     deepseek: 'src/deepseek.ts',
     search: 'src/search.ts',
     fetch: 'src/fetch.ts',
