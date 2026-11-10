@@ -35,7 +35,7 @@ test('--help and --version do not start a stdio server', () => {
     encoding: 'utf8',
   })
   assert.equal(version.status, 0)
-  assert.match(version.stdout, /^0\.2\.2-rc\.1/)
+  assert.match(version.stdout, /^0\.2\.2-rc\.2/)
 })
 
 test('the CLI loads DEEPSEEK_API_KEY from the working directory .env', () => {

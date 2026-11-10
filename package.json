@@ -1,6 +1,6 @@
 {
   "name": "@lphal/deepseek-tool-search",
-  "version": "0.2.2-rc.1",
+  "version": "0.2.2-rc.2",
   "description": "DeepSeek Search and Fetch APIs exposed as MCP web_search and web_fetch tools",
   "type": "module",
   "repository": {
@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.32.2",
-    "zod": "^3.25.76"
+    "zod": "4.6.6"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
